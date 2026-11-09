@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Batch Fund</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:system-ui,Arial,sans-serif;background:#f4f6fa;color:#1b2430;padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
+header{background:#4472c4;color:#fff;padding:12px 14px;display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+h1{font-size:18px;margin:0}
+button,select,input,textarea{font:inherit}
+.btn{background:#fff;color:#2f5597;border:0;border-radius:8px;padding:8px 12px;font-weight:600}
+.btn.d{background:#c0392b;color:#fff}
+.bar{padding:10px 14px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.chip{border:1px solid #4472c4;background:#fff;color:#2f5597;border-radius:20px;padding:6px 12px}
+.chip.on{background:#4472c4;color:#fff}
+.sep{width:1px;height:24px;background:#bbb}
+#q{flex:1;min-width:130px;padding:8px;border:1px solid #bbb;border-radius:8px}
+.sum{padding:0 14px 8px;font-weight:600}
+.wrap{overflow:auto;margin:0 8px 16px;background:#fff;max-height:70vh}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{border:1px solid #222;padding:6px 8px;white-space:nowrap}
+th{background:#4472c4;color:#fff;text-align:left;position:sticky;top:0;z-index:2}
+th small{display:block;font-weight:400;opacity:.9}
+td.nm{position:sticky;left:0;background:#fff;cursor:pointer;z-index:1}
+.tag{font-size:11px;border-radius:10px;padding:1px 7px;margin-left:6px;color:#fff}
+.tag.F{background:#d6336c}.tag.M{background:#1c7ed6}
+td.p{text-align:right;cursor:pointer;min-width:110px}
+td.pd{background:#e7f4ea}td.pt{background:#fff3cd}
+td.r{text-align:right;font-weight:600}
+tfoot td{background:#dce6f7;font-weight:700;text-align:right}
+#md{display:none;position:fixed;inset:0;background:#0007;align-items:center;justify-content:center;z-index:9;padding:14px}
+#bx{background:#fff;border-radius:12px;padding:16px;width:100%;max-width:420px;max-height:90vh;overflow:auto}
+#bx label{display:block;margin:10px 0 3px;font-size:13px;color:#555}
+#bx input,#bx select,#bx textarea{width:100%;padding:9px;border:1px solid #bbb;border-radius:8px}
+.row{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
+.row .btn{background:#4472c4;color:#fff}
+.row .btn.g{background:#e5e8ee;color:#222}
+.empty{padding:30px;text-align:center;color:#666}
+@media print{header,.bar,#md{display:none}.wrap{max-height:none;overflow:visible}}
+</style></head><body>
+<header><h1>23/24 Batch Fund</h1>
+<div><button class="btn" onclick="addMems()">+ Members</button>
+<button class="btn" onclick="colForm()">+ Column</button>
+<button class="btn" onclick="menu()">More ▾</button></div></header>
+<div class="bar" id="f1"></div>
+<div class="sum" id="sum"></div>
+<div class="wrap" id="tb"></div>
+<div id="md"><div id="bx"><h3 id="mt" style="margin:0"></h3><div id="mb"></div>
+<div class="row"><button class="btn" id="ms">Save</button><button class="btn g" onclick="closeM()">Cancel</button></div></div></div>
+<script>
+const K='batchfund_v1';
+let S=(()=>{try{const d=JSON.parse(localStorage.getItem(K));if(d&&d.cols)return d}catch(e){}return{cols:[{id:'c1',name:'Month 1',amt:1000}],mem:[],pay:{}}})();
+let F={g:'all',s:'all',q:''};
+const $=i=>document.getElementById(i);
+const save=()=>{try{localStorage.setItem(K,JSON.stringify(S))}catch(e){alert('Could not save!')}};
+const fmt=n=>'LKR '+Number(n).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+const uid=()=>Math.random().toString(36).slice(2,9);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const strm=r=>/BST/i.test(r)?'BST':/ICT/i.test(r)?'ICT':'Other';
+const getM=id=>S.mem.find(m=>m.id==id), getC=id=>S.cols.find(c=>c.id==id);
+
+function rows(){const q=F.q.toLowerCase();return S.mem.filter(m=>(F.g=='all'||m.g==F.g)&&(F.s=='all'||m.s==F.s)&&(m.name+m.reg).toLowerCase().includes(q))}
+function calc(m){let p=0,d=0;S.cols.forEach(c=>{const v=(S.pay[m.id]||{})[c.id];if(v!=null){p+=v;d+=Math.max(0,c.amt-v)}else d+=c.amt});return{p,d}}
+
+function render(){
+ const chips=(k,arr)=>arr.map(([v,l])=>`<button class="chip ${F[k]==v?'on':''}" onclick="F.${k}='${v}';render()">${l}</button>`).join('');
+ $('f1').innerHTML=chips('g',[['all','All'],['F','Girls'],['M','Boys']])+'<span class="sep"></span>'+chips('s',[['all','All'],['ICT','ICT'],['BST','BST']])+`<input id="q" placeholder="Search name / reg no" value="${esc(F.q)}" oninput="F.q=this.value;render();this.focus()">`;
+ const R=rows();
+ if(!S.mem.length){$('tb').innerHTML='<div class="empty">No members yet.<br>Tap <b>+ Members</b> and paste names from Excel.</div>';$('sum').textContent='';return}
+ let h='<table><thead><tr><th>#</th><th>Registration Number</th><th>Full Name</th>';
+ S.cols.forEach(c=>h+=`<th onclick="colForm('${c.id}')" style="cursor:pointer">${esc(c.name)}<small>${fmt(c.amt)} ✎</small></th>`);
+ h+='<th>Total Paid</th><th>Due</th></tr></thead><tbody>';
+ const T={};S.cols.forEach(c=>T[c.id]=0);let tp=0,td=0;
+ R.forEach((m,i)=>{const t=calc(m);tp+=t.p;td+=t.d;
+  h+=`<tr><td>${i+1}</td><td>${esc(m.reg)}</td><td class="nm" onclick="memForm('${m.id}')">${esc(m.name)}<span class="tag ${m.g}">${m.g=='F'?'Girl':'Boy'} · ${m.s}</span></td>`;
+  S.cols.forEach(c=>{const v=(S.pay[m.id]||{})[c.id];if(v!=null)T[c.id]+=v;
+   h+=`<td class="p ${v==null?'':v>=c.amt?'pd':'pt'}" onclick="payForm('${m.id}','${c.id}')">${v==null?'':fmt(v)}</td>`});
+  h+=`<td class="r">${fmt(t.p)}</td><td class="r">${t.d?fmt(t.d):'—'}</td></tr>`});
+ h+='</tbody><tfoot><tr><td colspan="3">TOTAL ('+R.length+' members)</td>';
+ S.cols.forEach(c=>h+=`<td>${fmt(T[c.id])}</td>`);
+ h+=`<td>${fmt(tp)}</td><td>${fmt(td)}</td></tr></tfoot></table>`;
+ $('tb').innerHTML=h;
+ $('sum').textContent=`Collected: ${fmt(tp)}  |  Still due: ${fmt(td)}  |  Not fully paid: ${R.filter(m=>calc(m).d>0).length} of ${R.length}`;
+}
+
+let onSave=null;
+function modal(t,html,fn){$('mt').textContent=t;$('mb').innerHTML=html;$('md').style.display='flex';onSave=fn;$('ms').style.display=fn?'':'none'}
+function closeM(){$('md').style.display='none'}
+$('ms').onclick=()=>{if(onSave&&onSave()!==false)closeM()};
+
+function payForm(mid,cid){const m=getM(mid),c=getC(cid),v=(S.pay[mid]||{})[cid];
+ modal(m.name+' — '+c.name,`<label>Amount paid (LKR)</label><input id="a" type="number" inputmode="decimal" value="${v!=null?v:c.amt}"><div class="row"><button class="btn g" onclick="clearPay('${mid}','${cid}')">Mark NOT paid</button></div>`,()=>{
+  const n=parseFloat($('a').value);if(isNaN(n)||n<0)return false;(S.pay[mid]=S.pay[mid]||{})[cid]=n;save();render()});setTimeout(()=>$('a').select(),50)}
+function clearPay(mid,cid){if(S.pay[mid])delete S.pay[mid][cid];save();render();closeM()}
+
+function colForm(id){const c=id?getC(id):{name:'',amt:1000};
+ modal(id?'Edit column':'New column',`<label>Column name (e.g. January, Trip)</label><input id="n" value="${esc(c.name)}"><label>Amount per person (LKR)</label><input id="a" type="number" value="${c.amt}">${id?`<div class="row"><button class="btn d" onclick="delCol('${id}')">Delete column</button></div>`:''}`,()=>{
+  const n=$('n').value.trim(),a=parseFloat($('a').value);if(!n||isNaN(a))return false;
+  if(id){c.name=n;c.amt=a}else S.cols.push({id:uid(),name:n,amt:a});save();render()})}
+function delCol(id){if(!confirm('Delete this column and its payments?'))return;S.cols=S.cols.filter(c=>c.id!=id);Object.values(S.pay).forEach(p=>delete p[id]);save();render();closeM()}
+
+function memForm(id){const m=getM(id);
+ modal('Edit member',`<label>Registration Number</label><input id="r" value="${esc(m.reg)}"><label>Full Name</label><input id="n" value="${esc(m.name)}"><label>Gender</label><select id="g"><option value="F" ${m.g=='F'?'selected':''}>Girl</option><option value="M" ${m.g=='M'?'selected':''}>Boy</option></select><label>Stream</label><select id="s">${['ICT','BST','Other'].map(x=>`<option ${m.s==x?'selected':''}>${x}</option>`).join('')}</select><div class="row"><button class="btn d" onclick="delMem('${id}')">Delete member</button></div>`,()=>{
+  m.reg=$('r').value.trim();m.name=$('n').value.trim();m.g=$('g').value;m.s=$('s').value;save();render()})}
+function delMem(id){if(!confirm('Delete this member and all their payments?'))return;S.mem=S.mem.filter(m=>m.id!=id);delete S.pay[id];save();render();closeM()}
+
+function addMems(){modal('Add members',`<label>Paste from Excel (Registration Number, then Name — one person per line)</label><textarea id="t" rows="8"></textarea><label>These people are</label><select id="g"><option value="F">Girls</option><option value="M">Boys</option></select>`,()=>{
+  const L=$('t').value.split('\n').map(x=>x.trim()).filter(Boolean);if(!L.length)return false;
+  L.forEach(l=>{let p=l.split('\t');if(p.length<2)p=l.split(/\s{2,}|,/);let reg='',name=l;
+   if(p.length>=2){reg=p[0].trim();name=p.slice(1).join(' ').trim()}
+   if(/^registration/i.test(reg))return;S.mem.push({id:uid(),reg,name,g:$('g').value,s:strm(reg)})});
+  save();render()})}
+
+function menu(){modal('More',`<div class="row" style="flex-direction:column">
+<button class="btn" onclick="closeM();shareCSV()">Share report (CSV for Excel)</button>
+<button class="btn" onclick="closeM();shareUnpaid()">Share "not paid" list (text)</button>
+<button class="btn" onclick="closeM();window.print()">Print / PDF (browser)</button>
+<button class="btn" onclick="closeM();backup()">Backup all data</button>
+<button class="btn" onclick="restoreForm()">Restore from backup</button></div>`)}
+
+async function shareFile(name,text,mime){const P=window.Capacitor&&Capacitor.Plugins;
+ try{if(P&&P.Filesystem&&P.Share){const r=await P.Filesystem.writeFile({path:name,data:text,directory:'CACHE',encoding:'utf8'});await P.Share.share({title:name,url:r.uri})}
+ else{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([text],{type:mime}));a.download=name;a.click()}}catch(e){alert('Share failed: '+e.message)}}
+async function shareText(t){const P=window.Capacitor&&Capacitor.Plugins;
+ if(P&&P.Share)try{await P.Share.share({text:t})}catch(e){}else{navigator.clipboard&&navigator.clipboard.writeText(t);alert('Copied to clipboard')}}
+const today=()=>new Date().toISOString().slice(0,10);
+function shareCSV(){const q=v=>'"'+String(v).replace(/"/g,'""')+'"';
+ let c=[['Registration Number','Full Name','Gender','Stream',...S.cols.map(c=>c.name+' ('+c.amt+')'),'Total Paid','Due'].map(q).join(',')];
+ rows().forEach(m=>{const t=calc(m);c.push([m.reg,m.name,m.g=='F'?'Girl':'Boy',m.s,...S.cols.map(x=>{const v=(S.pay[m.id]||{})[x.id];return v==null?'':v}),t.p,t.d].map(q).join(','))});
+ shareFile('fund-report-'+today()+'.csv','\ufeff'+c.join('\n'),'text/csv')}
+function shareUnpaid(){const R=rows().filter(m=>calc(m).d>0);
+ shareText(`NOT PAID LIST (${today()})\n`+R.map((m,i)=>`${i+1}. ${m.name} (${m.reg}) - due ${fmt(calc(m).d)}`).join('\n')+`\n\nTotal due: ${fmt(R.reduce((a,m)=>a+calc(m).d,0))}`)}
+function backup(){shareFile('batchfund-backup-'+today()+'.json',JSON.stringify(S),'application/json')}
+function restoreForm(){modal('Restore backup','<label>Choose the backup file</label><input id="fl" type="file"><label>…or paste the backup text</label><textarea id="t" rows="4"></textarea>',()=>{
+  const go=txt=>{try{const d=JSON.parse(txt);if(!d.cols||!d.mem)throw 0;if(confirm('Replace ALL current data with this backup?')){S=d;save();render()}}catch(e){alert('Invalid backup')}};
+  const f=$('fl').files[0];if(f){const r=new FileReader();r.onload=()=>go(r.result);r.readAsText(f)}else if($('t').value.trim())go($('t').value);else return false})}
+render();
+</script></body></html>
