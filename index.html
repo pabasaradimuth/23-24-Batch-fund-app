@@ -25,8 +25,10 @@ th,td{border-bottom:1px solid var(--line);border-right:1px solid var(--line);pad
 th{background:var(--navy);color:#fff;text-align:left;position:sticky;top:0;z-index:2;border-color:#ffffff22}
 th small{display:block;font-weight:400;opacity:.8}
 tbody tr:nth-child(even) td{background:#f8fafc}
-td.nm{position:sticky;left:0;background:#fff;cursor:pointer;z-index:1}
-.tag{font-size:11px;border-radius:10px;padding:2px 8px;margin-left:6px;font-weight:600}
+td.nm{cursor:pointer}
+td.id{position:sticky;left:0;background:#fff;cursor:pointer;z-index:1;font-weight:600;box-shadow:2px 0 0 #b9c3d3}
+th.id{left:0;z-index:3}
+.tag{font-size:11px;border-radius:10px;padding:2px 8px;display:table;margin-top:4px;font-weight:600}
 .tag.F{background:#fde8ef;color:#a61e4d}.tag.M{background:#e0ecff;color:#1e4fa3}
 td.p{text-align:right;cursor:pointer;min-width:115px}
 tbody tr td.pd{background:#e3f4e9;color:#166534}
@@ -74,12 +76,12 @@ function render(){
  $('f1').innerHTML=chips('g',[['all','All'],['F','Girls'],['M','Boys']])+'<span class="sep"></span>'+chips('s',[['all','All'],['ICT','ICT'],['BST','BST']])+`<input id="q" placeholder="Search name / reg no" value="${esc(F.q)}" oninput="F.q=this.value;render();this.focus()">`;
  const R=rows();
  if(!S.mem.length){$('tb').innerHTML='<div class="empty">No members yet.<br>Tap <b>+ Members</b> and paste names from Excel.</div>';$('sum').textContent='';return}
- let h='<table><thead><tr><th>#</th><th>Registration Number</th><th>Full Name</th>';
+ let h='<table><thead><tr><th>#</th><th class="id">Reg No</th><th>Full Name</th>';
  S.cols.forEach(c=>h+=`<th onclick="colForm('${c.id}')" style="cursor:pointer">${esc(c.name)}<small>${fmt(c.amt)} ✎</small></th>`);
  h+='<th>Total Paid</th><th>Due</th></tr></thead><tbody>';
  const T={};S.cols.forEach(c=>T[c.id]=0);let tp=0,td=0;
  R.forEach((m,i)=>{const t=calc(m);tp+=t.p;td+=t.d;
-  h+=`<tr><td>${i+1}</td><td>${esc(m.reg)}</td><td class="nm" onclick="memForm('${m.id}')">${esc(m.name)}<span class="tag ${m.g}">${m.g=='F'?'Girl':'Boy'} · ${m.s}</span></td>`;
+  h+=`<tr><td>${i+1}</td><td class="id" onclick="memForm('${m.id}')">${esc(m.reg.slice(-7))}</td><td class="nm" onclick="memForm('${m.id}')">${esc(m.name)}<span class="tag ${m.g}">${m.g=='F'?'Girl':'Boy'} · ${m.s}</span></td>`;
   S.cols.forEach(c=>{const v=(S.pay[m.id]||{})[c.id];if(v!=null)T[c.id]+=v;
    h+=`<td class="p ${v==null?'':v>=c.amt?'pd':'pt'}" onclick="payForm('${m.id}','${c.id}')">${v==null?'':fmt(v)}</td>`});
   h+=`<td class="r">${fmt(t.p)}</td><td class="r">${t.d?fmt(t.d):'—'}</td></tr>`});
@@ -91,7 +93,7 @@ function render(){
 }
 
 let onSave=null;
-function modal(t,html,fn){$('mt').textContent=t;$('mb').innerHTML=html;$('md').style.display='flex';onSave=fn;$('ms').style.display=fn?'':'none'}
+function modal(t,html,fn){$('mt').textContent=t;$('mb').innerHTML=html;$('md').style.display='flex';onSave=fn;$('ms').textContent='Save';$('ms').style.display=fn?'':'none'}
 function closeM(){$('md').style.display='none'}
 $('ms').onclick=()=>{if(onSave&&onSave()!==false)closeM()};
 
@@ -125,19 +127,20 @@ function menu(){modal('More',`<div class="row" style="flex-direction:column">
 <button class="btn" onclick="closeM();backup()">Backup all data</button>
 <button class="btn" onclick="restoreForm()">Restore from backup</button></div>`)}
 
-async function sharePDF(){
+async function makePDF(cols,ex){
  if(!(window.jspdf&&jspdf.jsPDF)){window.print();return}
- const R=rows(),n=S.cols.length,doc=new jspdf.jsPDF({orientation:n>3?'landscape':'portrait',unit:'pt',format:'a4'});
+ const cl=m=>{let p=0,d=0;cols.forEach(c=>{const v=(S.pay[m.id]||{})[c.id];if(v!=null){p+=v;d+=Math.max(0,c.amt-v)}else d+=c.amt});return{p,d}};const R=rows(),n=cols.length,doc=new jspdf.jsPDF({orientation:n>3?'landscape':'portrait',unit:'pt',format:'a4'});
  doc.setFontSize(16);doc.text(S.title||'Batch Fund',40,40);doc.setFontSize(10);doc.setTextColor(90);
  doc.text(`${{all:'All members',F:'Girls',M:'Boys'}[F.g]} | ${F.s=='all'?'ICT & BST':F.s} | ${today()}`,40,58);
- const raw=R.map(m=>S.cols.map(c=>(S.pay[m.id]||{})[c.id]));
- const T=S.cols.map(c=>R.reduce((a,m)=>a+((S.pay[m.id]||{})[c.id]||0),0));let tp=0,td=0;
- const body=R.map((m,i)=>{const t=calc(m);tp+=t.p;td+=t.d;return[i+1,m.reg,m.name,...raw[i].map(v=>v==null?'':fmt(v)),fmt(t.p),t.d?fmt(t.d):'-']});
- doc.autoTable({startY:70,head:[['#','Reg No','Full Name',...S.cols.map(c=>c.name+'\n'+fmt(c.amt)),'Total Paid','Due']],body,foot:[['','','TOTAL ('+R.length+')',...T.map(fmt),fmt(tp),fmt(td)]],
+ const raw=R.map(m=>cols.map(c=>(S.pay[m.id]||{})[c.id]));
+ const T=cols.map(c=>R.reduce((a,m)=>a+((S.pay[m.id]||{})[c.id]||0),0));let tp=0,td=0;
+ const body=R.map((m,i)=>{const t=cl(m);tp+=t.p;td+=t.d;return[i+1,m.reg,m.name,...raw[i].map(v=>v==null?'':fmt(v)),...(ex?[fmt(t.p),t.d?fmt(t.d):'-']:[])]});
+ doc.autoTable({startY:70,head:[['#','Reg No','Full Name',...cols.map(c=>c.name+'\n'+fmt(c.amt)),...(ex?['Total Paid','Due']:[])]],body,foot:[['','','TOTAL ('+R.length+')',...T.map(fmt),...(ex?[fmt(tp),fmt(td)]:[])]],
   styles:{fontSize:8,cellPadding:4,lineColor:[213,219,229],lineWidth:.5},headStyles:{fillColor:[31,58,95]},footStyles:{fillColor:[227,234,245],textColor:20},
-  didParseCell:d=>{if(d.section=='body'&&d.column.index>=3&&d.column.index<3+n){const v=raw[d.row.index][d.column.index-3],c=S.cols[d.column.index-3];d.cell.styles.halign='right';if(v!=null)d.cell.styles.fillColor=v>=c.amt?[227,244,233]:[255,241,204]}}});
+  didParseCell:d=>{if(d.section=='body'&&d.column.index>=3&&d.column.index<3+n){const v=raw[d.row.index][d.column.index-3],c=cols[d.column.index-3];d.cell.styles.halign='right';if(v!=null)d.cell.styles.fillColor=v>=c.amt?[227,244,233]:[255,241,204]}}});
  const name='fund-report-'+today()+'.pdf',P=window.Capacitor&&Capacitor.Plugins;
  try{if(P&&P.Filesystem&&P.Share){const r=await P.Filesystem.writeFile({path:name,data:doc.output('datauristring').split(',')[1],directory:'CACHE'});await P.Share.share({title:name,url:r.uri})}else doc.save(name)}catch(e){alert('PDF failed: '+e.message)}}
+function sharePDF(){const L='color:#1e293b;font-size:15px';modal('PDF columns','<label>Choose what to include</label>'+S.cols.map(c=>`<label style="${L}"><input type="checkbox" class="pc" value="${c.id}" checked style="width:auto;margin-right:8px">${esc(c.name)} (${fmt(c.amt)})</label>`).join('')+`<label style="${L}"><input type="checkbox" id="ex" checked style="width:auto;margin-right:8px">Total Paid &amp; Due</label>`,()=>{const ids=[...document.querySelectorAll('.pc:checked')].map(x=>x.value);if(!ids.length){alert('Select at least one column');return false}makePDF(S.cols.filter(c=>ids.includes(c.id)),$('ex').checked)});$('ms').textContent='Create PDF'}
 function ren(){modal('Rename fund',`<label>Title</label><input id="n" value="${esc(S.title||'')}">`,()=>{S.title=$('n').value.trim();save();render()})}
 async function shareFile(name,text,mime){const P=window.Capacitor&&Capacitor.Plugins;
  try{if(P&&P.Filesystem&&P.Share){const r=await P.Filesystem.writeFile({path:name,data:text,directory:'CACHE',encoding:'utf8'});await P.Share.share({title:name,url:r.uri})}
