@@ -18,6 +18,7 @@ jobs:
         run: |
           mkdir -p www && cp index.html www/
           npm install
+          cp node_modules/jspdf/dist/jspdf.umd.min.js node_modules/jspdf-autotable/dist/jspdf.plugin.autotable.min.js www/
           npx cap add android
           npx cap sync android
           cd android && chmod +x gradlew && ./gradlew assembleDebug
