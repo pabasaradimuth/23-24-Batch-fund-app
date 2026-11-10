@@ -70,10 +70,10 @@ const getM=id=>S.mem.find(m=>m.id==id), getC=id=>S.cols.find(c=>c.id==id);
 function rows(){const q=F.q.toLowerCase();return S.mem.filter(m=>(F.g=='all'||m.g==F.g)&&(F.s=='all'||m.s==F.s)&&(m.name+m.reg).toLowerCase().includes(q))}
 function calc(m){let p=0,d=0;S.cols.forEach(c=>{const v=(S.pay[m.id]||{})[c.id];if(v!=null){p+=v;d+=Math.max(0,c.amt-v)}else d+=c.amt});return{p,d}}
 
-function render(){
+function render(kb){
  $('ttl').innerHTML=esc(S.title||'23/24 Batch Fund')+' <small>✎</small>';
  const chips=(k,arr)=>arr.map(([v,l])=>`<button class="chip ${F[k]==v?'on':''}" onclick="F.${k}='${v}';render()">${l}</button>`).join('');
- $('f1').innerHTML=chips('g',[['all','All'],['F','Girls'],['M','Boys']])+'<span class="sep"></span>'+chips('s',[['all','All'],['ICT','ICT'],['BST','BST']])+`<input id="q" placeholder="Search name / reg no" value="${esc(F.q)}" oninput="F.q=this.value;render();this.focus()">`;
+ if(!kb)$('f1').innerHTML=chips('g',[['all','All'],['F','Girls'],['M','Boys']])+'<span class="sep"></span>'+chips('s',[['all','All'],['ICT','ICT'],['BST','BST']])+`<input id="q" placeholder="Search name / reg no" value="${esc(F.q)}" oninput="F.q=this.value;render(1)">`;
  const R=rows();
  if(!S.mem.length){$('tb').innerHTML='<div class="empty">No members yet.<br>Tap <b>+ Members</b> and paste names from Excel.</div>';$('sum').textContent='';return}
  let h='<table><thead><tr><th>#</th><th class="id">Reg No</th><th>Full Name</th>';
