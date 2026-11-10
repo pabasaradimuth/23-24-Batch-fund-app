@@ -3,42 +3,48 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Batch Fund</title>
 <style>
+:root{--navy:#1f3a5f;--navy2:#2b4c7e;--teal:#0f766e;--bg:#f1f4f9;--line:#d5dbe5;--tx:#1e293b}
 *{box-sizing:border-box}
-body{margin:0;font-family:system-ui,Arial,sans-serif;background:#f4f6fa;color:#1b2430;padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
-header{background:#4472c4;color:#fff;padding:12px 14px;display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
-h1{font-size:18px;margin:0}
+body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;background:var(--bg);color:var(--tx);padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
+header{background:linear-gradient(135deg,var(--navy),var(--navy2));color:#fff;padding:16px 16px 12px;box-shadow:0 2px 8px #0003}
+h1{font-size:20px;margin:0;letter-spacing:.2px}
+h1 small{font-size:12px;opacity:.7;font-weight:400}
 button,select,input,textarea{font:inherit}
-.btn{background:#fff;color:#2f5597;border:0;border-radius:8px;padding:8px 12px;font-weight:600}
-.btn.d{background:#c0392b;color:#fff}
-.bar{padding:10px 14px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
-.chip{border:1px solid #4472c4;background:#fff;color:#2f5597;border-radius:20px;padding:6px 12px}
-.chip.on{background:#4472c4;color:#fff}
-.sep{width:1px;height:24px;background:#bbb}
-#q{flex:1;min-width:130px;padding:8px;border:1px solid #bbb;border-radius:8px}
-.sum{padding:0 14px 8px;font-weight:600}
-.wrap{overflow:auto;margin:0 8px 16px;background:#fff;max-height:70vh}
-table{border-collapse:collapse;width:100%;font-size:14px}
-th,td{border:1px solid #222;padding:6px 8px;white-space:nowrap}
-th{background:#4472c4;color:#fff;text-align:left;position:sticky;top:0;z-index:2}
-th small{display:block;font-weight:400;opacity:.9}
+.btn{background:#fff;color:var(--navy);border:0;border-radius:10px;padding:9px 13px;font-weight:600}
+header .btn{background:#ffffff22;color:#fff;border:1px solid #ffffff44;margin:10px 6px 0 0}
+.btn.d{background:#b42318!important;color:#fff!important}
+.bar{padding:12px 14px 6px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.chip{border:1px solid var(--line);background:#fff;color:var(--navy);border-radius:20px;padding:6px 14px;font-weight:500}
+.chip.on{background:var(--navy);border-color:var(--navy);color:#fff}
+.sep{width:1px;height:24px;background:var(--line)}
+#q{flex:1;min-width:130px;padding:9px 12px;border:1px solid var(--line);border-radius:10px;background:#fff}
+.sum{margin:6px 14px 10px;padding:10px 12px;background:#fff;border:1px solid var(--line);border-left:4px solid var(--teal);border-radius:10px;font-weight:600;font-size:14px}
+.wrap{overflow:auto;margin:0 10px 16px;background:#fff;max-height:68vh;border:1px solid var(--line);border-radius:10px}
+table{border-collapse:separate;border-spacing:0;width:100%;font-size:14px}
+th,td{border-bottom:1px solid var(--line);border-right:1px solid var(--line);padding:8px 10px;white-space:nowrap}
+th{background:var(--navy);color:#fff;text-align:left;position:sticky;top:0;z-index:2;border-color:#ffffff22}
+th small{display:block;font-weight:400;opacity:.8}
+tbody tr:nth-child(even) td{background:#f8fafc}
 td.nm{position:sticky;left:0;background:#fff;cursor:pointer;z-index:1}
-.tag{font-size:11px;border-radius:10px;padding:1px 7px;margin-left:6px;color:#fff}
-.tag.F{background:#d6336c}.tag.M{background:#1c7ed6}
-td.p{text-align:right;cursor:pointer;min-width:110px}
-td.pd{background:#e7f4ea}td.pt{background:#fff3cd}
+.tag{font-size:11px;border-radius:10px;padding:2px 8px;margin-left:6px;font-weight:600}
+.tag.F{background:#fde8ef;color:#a61e4d}.tag.M{background:#e0ecff;color:#1e4fa3}
+td.p{text-align:right;cursor:pointer;min-width:115px}
+tbody tr td.pd{background:#e3f4e9;color:#166534}
+tbody tr td.pt{background:#fff1cc;color:#8a5a00}
 td.r{text-align:right;font-weight:600}
-tfoot td{background:#dce6f7;font-weight:700;text-align:right}
-#md{display:none;position:fixed;inset:0;background:#0007;align-items:center;justify-content:center;z-index:9;padding:14px}
-#bx{background:#fff;border-radius:12px;padding:16px;width:100%;max-width:420px;max-height:90vh;overflow:auto}
-#bx label{display:block;margin:10px 0 3px;font-size:13px;color:#555}
-#bx input,#bx select,#bx textarea{width:100%;padding:9px;border:1px solid #bbb;border-radius:8px}
+tfoot td{background:#e3eaf5;font-weight:700;text-align:right;position:sticky;bottom:0}
+#md{display:none;position:fixed;inset:0;background:#0f172a99;align-items:center;justify-content:center;z-index:9;padding:14px}
+#bx{background:#fff;border-radius:14px;padding:18px;width:100%;max-width:420px;max-height:90vh;overflow:auto}
+#bx label{display:block;margin:10px 0 3px;font-size:13px;color:#64748b}
+#bx input,#bx select,#bx textarea{width:100%;padding:10px;border:1px solid var(--line);border-radius:10px}
 .row{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
-.row .btn{background:#4472c4;color:#fff}
-.row .btn.g{background:#e5e8ee;color:#222}
-.empty{padding:30px;text-align:center;color:#666}
+.row .btn{background:var(--navy);color:#fff}
+.row .btn.g{background:#e8ecf3;color:var(--tx)}
+.empty{padding:30px;text-align:center;color:#64748b}
 @media print{header,.bar,#md{display:none}.wrap{max-height:none;overflow:visible}}
-</style></head><body>
-<header><h1>23/24 Batch Fund</h1>
+</style>
+<script src="jspdf.umd.min.js"></script><script src="jspdf.plugin.autotable.min.js"></script></head><body>
+<header><h1 id="ttl" onclick="ren()"></h1>
 <div><button class="btn" onclick="addMems()">+ Members</button>
 <button class="btn" onclick="colForm()">+ Column</button>
 <button class="btn" onclick="menu()">More ▾</button></div></header>
@@ -63,6 +69,7 @@ function rows(){const q=F.q.toLowerCase();return S.mem.filter(m=>(F.g=='all'||m.
 function calc(m){let p=0,d=0;S.cols.forEach(c=>{const v=(S.pay[m.id]||{})[c.id];if(v!=null){p+=v;d+=Math.max(0,c.amt-v)}else d+=c.amt});return{p,d}}
 
 function render(){
+ $('ttl').innerHTML=esc(S.title||'23/24 Batch Fund')+' <small>✎</small>';
  const chips=(k,arr)=>arr.map(([v,l])=>`<button class="chip ${F[k]==v?'on':''}" onclick="F.${k}='${v}';render()">${l}</button>`).join('');
  $('f1').innerHTML=chips('g',[['all','All'],['F','Girls'],['M','Boys']])+'<span class="sep"></span>'+chips('s',[['all','All'],['ICT','ICT'],['BST','BST']])+`<input id="q" placeholder="Search name / reg no" value="${esc(F.q)}" oninput="F.q=this.value;render();this.focus()">`;
  const R=rows();
@@ -104,20 +111,34 @@ function memForm(id){const m=getM(id);
   m.reg=$('r').value.trim();m.name=$('n').value.trim();m.g=$('g').value;m.s=$('s').value;save();render()})}
 function delMem(id){if(!confirm('Delete this member and all their payments?'))return;S.mem=S.mem.filter(m=>m.id!=id);delete S.pay[id];save();render();closeM()}
 
-function addMems(){modal('Add members',`<label>Paste from Excel (Registration Number, then Name — one person per line)</label><textarea id="t" rows="8"></textarea><label>These people are</label><select id="g"><option value="F">Girls</option><option value="M">Boys</option></select>`,()=>{
+function addMems(){modal('Add members',`<label>Paste from Excel (Registration Number, then Name — one person per line)</label><textarea id="t" rows="8"></textarea><label>These people are</label><select id="g"><option value="F">Girls</option><option value="M">Boys</option></select><label>Stream</label><select id="s"><option>ICT</option><option>BST</option><option value="auto">Detect from registration number</option></select>`,()=>{
   const L=$('t').value.split('\n').map(x=>x.trim()).filter(Boolean);if(!L.length)return false;
   L.forEach(l=>{let p=l.split('\t');if(p.length<2)p=l.split(/\s{2,}|,/);let reg='',name=l;
    if(p.length>=2){reg=p[0].trim();name=p.slice(1).join(' ').trim()}
-   if(/^registration/i.test(reg))return;S.mem.push({id:uid(),reg,name,g:$('g').value,s:strm(reg)})});
+   if(/^registration/i.test(reg))return;S.mem.push({id:uid(),reg,name,g:$('g').value,s:$('s').value=='auto'?strm(reg):$('s').value})});
   save();render()})}
 
 function menu(){modal('More',`<div class="row" style="flex-direction:column">
 <button class="btn" onclick="closeM();shareCSV()">Share report (CSV for Excel)</button>
 <button class="btn" onclick="closeM();shareUnpaid()">Share "not paid" list (text)</button>
-<button class="btn" onclick="closeM();window.print()">Print / PDF (browser)</button>
+<button class="btn" onclick="closeM();sharePDF()">Share report as PDF</button>
 <button class="btn" onclick="closeM();backup()">Backup all data</button>
 <button class="btn" onclick="restoreForm()">Restore from backup</button></div>`)}
 
+async function sharePDF(){
+ if(!(window.jspdf&&jspdf.jsPDF)){window.print();return}
+ const R=rows(),n=S.cols.length,doc=new jspdf.jsPDF({orientation:n>3?'landscape':'portrait',unit:'pt',format:'a4'});
+ doc.setFontSize(16);doc.text(S.title||'Batch Fund',40,40);doc.setFontSize(10);doc.setTextColor(90);
+ doc.text(`${{all:'All members',F:'Girls',M:'Boys'}[F.g]} | ${F.s=='all'?'ICT & BST':F.s} | ${today()}`,40,58);
+ const raw=R.map(m=>S.cols.map(c=>(S.pay[m.id]||{})[c.id]));
+ const T=S.cols.map(c=>R.reduce((a,m)=>a+((S.pay[m.id]||{})[c.id]||0),0));let tp=0,td=0;
+ const body=R.map((m,i)=>{const t=calc(m);tp+=t.p;td+=t.d;return[i+1,m.reg,m.name,...raw[i].map(v=>v==null?'':fmt(v)),fmt(t.p),t.d?fmt(t.d):'-']});
+ doc.autoTable({startY:70,head:[['#','Reg No','Full Name',...S.cols.map(c=>c.name+'\n'+fmt(c.amt)),'Total Paid','Due']],body,foot:[['','','TOTAL ('+R.length+')',...T.map(fmt),fmt(tp),fmt(td)]],
+  styles:{fontSize:8,cellPadding:4,lineColor:[213,219,229],lineWidth:.5},headStyles:{fillColor:[31,58,95]},footStyles:{fillColor:[227,234,245],textColor:20},
+  didParseCell:d=>{if(d.section=='body'&&d.column.index>=3&&d.column.index<3+n){const v=raw[d.row.index][d.column.index-3],c=S.cols[d.column.index-3];d.cell.styles.halign='right';if(v!=null)d.cell.styles.fillColor=v>=c.amt?[227,244,233]:[255,241,204]}}});
+ const name='fund-report-'+today()+'.pdf',P=window.Capacitor&&Capacitor.Plugins;
+ try{if(P&&P.Filesystem&&P.Share){const r=await P.Filesystem.writeFile({path:name,data:doc.output('datauristring').split(',')[1],directory:'CACHE'});await P.Share.share({title:name,url:r.uri})}else doc.save(name)}catch(e){alert('PDF failed: '+e.message)}}
+function ren(){modal('Rename fund',`<label>Title</label><input id="n" value="${esc(S.title||'')}">`,()=>{S.title=$('n').value.trim();save();render()})}
 async function shareFile(name,text,mime){const P=window.Capacitor&&Capacitor.Plugins;
  try{if(P&&P.Filesystem&&P.Share){const r=await P.Filesystem.writeFile({path:name,data:text,directory:'CACHE',encoding:'utf8'});await P.Share.share({title:name,url:r.uri})}
  else{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([text],{type:mime}));a.download=name;a.click()}}catch(e){alert('Share failed: '+e.message)}}
