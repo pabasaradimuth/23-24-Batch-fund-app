@@ -113,10 +113,6 @@ function openLoginModal() {
     <input id="login-email" type="email" placeholder="admin@example.com">
     <label>Password</label>
     <input id="login-pass" type="password" placeholder="Enter password">
-    <div style="text-align: center; margin: 14px 0; color: #64748b; font-size: 13px; font-weight: 600;">— OR —</div>
-    <button type="button" class="btn" onclick="loginWithGoogle()" style="width: 100%; background: #4285F4; color: #fff; display: flex; align-items: center; justify-content: center; gap: 8px;">
-      Sign in with Google
-    </button>
   `, () => {
     const email = document.getElementById('login-email').value.trim();
     const pass = document.getElementById('login-pass').value;
@@ -125,16 +121,9 @@ function openLoginModal() {
       .then(() => { closeM(); })
       .catch((error) => { alert("Login failed: " + error.message); return false; });
   });
-  $('ms').textContent = 'Login with Email';
+  $('ms').textContent = 'Login';
 }
-
-function loginWithGoogle() {
-  const provider = new firebase.auth.GoogleAuthProvider();
-  auth.signInWithPopup(provider)
-    .then(() => { closeM(); })
-    .catch(() => { auth.signInWithRedirect(provider); });
-}
-
+  
 function logoutAdmin() {
   auth.signOut().then(() => alert("Logged out successfully."));
 }
