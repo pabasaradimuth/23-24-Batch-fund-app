@@ -88,45 +88,61 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const dbRef = firebase.database().ref('batchfund_data');
 
-// Initialize Auth & Set Persistence to LOCAL (keeps user logged in)
+// --- AUTHENTICATION & LOGIN LOGIC ---
 const auth = firebase.auth();
 auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(console.error);
 
-// LIST OF AUTHORIZED ADMIN UIDS (Put your and your co-admin UIDs here)
+// Paste your Firebase User UID inside these quotes:
 const adminUids = [
-  "YOUR_ADMIN_UID_HERE",
-  "COADMIN_UID_1_HERE"
+  "YOUR_ADMIN_UID_HERE"
 ];
 
 let isAdmin = false;
 
-// Helper to block unauthorized actions
 function checkAdminBefore(actionFn, arg1, arg2) {
   if (!isAdmin) {
-    alert("View-Only Mode: You must log in as an authorized admin to make changes.");
+    alert("Only admins have access to edit or make changes.");
     return;
   }
-  actionFn(arg1, arg2);
+  return actionFn(arg1, arg2);
 }
 
-// Google Sign-In & Logout Functions
-function loginAdmin() {
-  auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()).catch(e => alert("Login failed: " + e.message));
+function openLoginModal() {
+  modal('Admin Login', `
+    <label>Email Address</label>
+    <input id="login-email" type="email" placeholder="admin@example.com">
+    <label>Password</label>
+    <input id="login-pass" type="password" placeholder="Enter password">
+    <div style="text-align: center; margin: 14px 0; color: #64748b; font-size: 13px; font-weight: 600;">— OR —</div>
+    <button type="button" class="btn" onclick="loginWithGoogle()" style="width: 100%; background: #4285F4; color: #fff; display: flex; align-items: center; justify-content: center; gap: 8px;">
+      Sign in with Google
+    </button>
+  `, () => {
+    const email = document.getElementById('login-email').value.trim();
+    const pass = document.getElementById('login-pass').value;
+    if (!email || !pass) { alert("Please fill in both fields."); return false; }
+    auth.signInWithEmailAndPassword(email, pass)
+      .then(() => { closeM(); })
+      .catch((error) => { alert("Login failed: " + error.message); return false; });
+  });
+  $('ms').textContent = 'Login with Email';
 }
+
+function loginWithGoogle() {
+  const provider = new firebase.auth.GoogleAuthProvider();
+  auth.signInWithPopup(provider)
+    .then(() => { closeM(); })
+    .catch(() => { auth.signInWithRedirect(provider); });
+}
+
 function logoutAdmin() {
   auth.signOut().then(() => alert("Logged out successfully."));
 }
 
-// Listen for Auth State Changes (Handles persistence automatically)
 auth.onAuthStateChanged((user) => {
-  const statusEl = $('user-status');
-  const loginBtn = $('id="login-btn"'); // handled via style display below
-  
   isAdmin = user && adminUids.includes(user.uid);
 
-  // Toggle visibility of edit buttons based on admin status
-  const editBtns = ['btn-add-mem', 'btn-add-col'];
-  editBtns.forEach(id => {
+  ['btn-add-mem', 'btn-add-col'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.style.display = isAdmin ? 'inline-block' : 'none';
   });
@@ -137,7 +153,7 @@ auth.onAuthStateChanged((user) => {
     $('logout-btn').style.display = 'inline-block';
   } else {
     if (user) {
-      alert("Access Denied: Your Google account is not on the authorized admin list.");
+      alert("Access Denied: This account is not on the authorized admin list.");
       auth.signOut();
     }
     $('user-status').innerText = "View-Only Mode";
@@ -146,6 +162,7 @@ auth.onAuthStateChanged((user) => {
   }
   render();
 });
+// --- END OF AUTH LOGIC ---
 
 let S = {cols:[{id:'c1',name:'Month 1',amt:1000}],mem:[],pay:{}};
 let F={g:'all',s:'all',q:''};
