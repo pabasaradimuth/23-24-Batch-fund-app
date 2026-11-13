@@ -193,6 +193,6 @@ function shareUnpaid(){const R=rows().filter(m=>calc(m).d>0);
  shareText(`NOT PAID LIST (${today()})\n`+R.map((m,i)=>`${i+1}. ${m.name} (${m.reg}) - due ${fmt(calc(m).d)}`).join('\n')+`\n\nTotal due: ${fmt(R.reduce((a,m)=>a+calc(m).d,0))}`)}
 function backup(){shareFile('batchfund-backup-'+today()+'.json',JSON.stringify(S),'application/json')}
 function restoreForm(){modal('Restore backup','<label>Choose the backup file</label><input id="fl" type="file"><label>…or paste the backup text</label><textarea id="t" rows="4"></textarea>',()=>{
-  const go=txt=>{try{const d=JSON.parse(txt);if(!d.cols||!d.mem)throw 0;if(confirm('Replace ALL current data with this backup?')){S=d;save();render()}}catch(e){alert('Invalid backup')}};
+  const go=txt=>{try{const d=JSON.parse(txt);if(!d.cols||!d.mem)throw 0;if(confirm('Replace ALL current data with this backup?')){S=d;dbRef.set(S).then(()=>render()).catch(e=>alert('Cloud save failed: '+e.message));}}catch(e){alert('Invalid backup')}};
   const f=$('fl').files[0];if(f){const r=new FileReader();r.onload=()=>go(r.result);r.readAsText(f)}else if($('t').value.trim())go($('t').value);else return false})}
 </script></body></html>
