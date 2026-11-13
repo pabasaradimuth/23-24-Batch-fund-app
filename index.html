@@ -1,49 +1,301 @@
 <!DOCTYPE html>
-<html lang="en"><head><meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Batch Fund</title>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Batch Fund — Management System</title>
 <style>
-:root{--navy:#1f3a5f;--navy2:#2b4c7e;--teal:#0f766e;--bg:#f1f4f9;--line:#d5dbe5;--tx:#1e293b}
-*{box-sizing:border-box}
-body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;background:var(--bg);color:var(--tx);padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
-header{background:linear-gradient(135deg,var(--navy),var(--navy2));color:#fff;padding:16px 16px 12px;box-shadow:0 2px 8px #0003}
-h1{font-size:20px;margin:0;letter-spacing:.2px}
-h1 small{font-size:12px;opacity:.7;font-weight:400}
-button,select,input,textarea{font:inherit}
-.btn{background:#fff;color:var(--navy);border:0;border-radius:10px;padding:9px 13px;font-weight:600}
-header .btn{background:#ffffff22;color:#fff;border:1px solid #ffffff44;margin:10px 6px 0 0}
-.btn.d{background:#b42318!important;color:#fff!important}
-.bar{padding:12px 14px 6px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
-.chip{border:1px solid var(--line);background:#fff;color:var(--navy);border-radius:20px;padding:6px 14px;font-weight:500}
-.chip.on{background:var(--navy);border-color:var(--navy);color:#fff}
-.sep{width:1px;height:24px;background:var(--line)}
-#q{flex:1;min-width:130px;padding:9px 12px;border:1px solid var(--line);border-radius:10px;background:#fff}
-.sum{margin:6px 14px 10px;padding:10px 12px;background:#fff;border:1px solid var(--line);border-left:4px solid var(--teal);border-radius:10px;font-weight:600;font-size:14px}
-.wrap{overflow:auto;margin:0 10px 16px;background:#fff;max-height:68vh;border:1px solid var(--line);border-radius:10px}
-table{border-collapse:separate;border-spacing:0;width:100%;font-size:14px}
-th,td{border-bottom:1px solid var(--line);border-right:1px solid var(--line);padding:8px 10px;white-space:nowrap}
-th{background:var(--navy);color:#fff;text-align:left;position:sticky;top:0;z-index:2;border-color:#ffffff22}
-th small{display:block;font-weight:400;opacity:.8}
-tbody tr:nth-child(even) td{background:#f8fafc}
-td.nm{cursor:pointer}
-td.id{position:sticky;left:0;background:#fff;cursor:pointer;z-index:1;font-weight:600;box-shadow:2px 0 0 #b9c3d3}
-th.id{left:0;z-index:3}
-.tag{font-size:11px;border-radius:10px;padding:2px 8px;display:table;margin-top:4px;font-weight:600}
-.tag.F{background:#fde8ef;color:#a61e4d}.tag.M{background:#e0ecff;color:#1e4fa3}
-td.p{text-align:right;cursor:pointer;min-width:115px}
-tbody tr td.pd{background:#e3f4e9;color:#166534}
-tbody tr td.pt{background:#fff1cc;color:#8a5a00}
-td.r{text-align:right;font-weight:600}
-tfoot td{background:#e3eaf5;font-weight:700;text-align:right;position:sticky;bottom:0;z-index:4}
-#md{display:none;position:fixed;inset:0;background:#0f172a99;align-items:center;justify-content:center;z-index:9;padding:14px}
-#bx{background:#fff;border-radius:14px;padding:18px;width:100%;max-width:420px;max-height:90vh;overflow:auto}
-#bx label{display:block;margin:10px 0 3px;font-size:13px;color:#64748b}
-#bx input,#bx select,#bx textarea{width:100%;padding:10px;border:1px solid var(--line);border-radius:10px}
-.row{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
-.row .btn{background:var(--navy);color:#fff}
-.row .btn.g{background:#e8ecf3;color:var(--tx)}
-.empty{padding:30px;text-align:center;color:#64748b}
-@media print{header,.bar,#md{display:none}.wrap{max-height:none;overflow:visible}}
+:root {
+  --primary: #4f46e5;
+  --primary-dark: #4338ca;
+  --accent: #0d9488;
+  --bg: #f8fafc;
+  --card-bg: #ffffff;
+  --text: #0f172a;
+  --text-muted: #64748b;
+  --border: #e2e8f0;
+  --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -2px rgba(0, 0, 0, 0.07);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.08);
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  padding: env(safe-area-inset-top) 0 env(safe-area-inset-bottom);
+  -webkit-font-smoothing: antialiased;
+}
+
+header {
+  background: linear-gradient(135deg, #312e81 0%, #4f46e5 100%);
+  color: #fff;
+  padding: 20px 24px 16px;
+  box-shadow: var(--shadow-lg);
+}
+
+header h1 {
+  font-size: 22px;
+  font-weight: 700;
+  margin: 0;
+  letter-spacing: -0.025em;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+header h1 small {
+  font-size: 13px;
+  opacity: 0.8;
+  font-weight: 400;
+  background: rgba(255, 255, 255, 0.15);
+  padding: 2px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+header h1 small:hover { background: rgba(255, 255, 255, 0.25); }
+
+button, select, input, textarea { font: inherit; }
+
+.btn {
+  background: #ffffff;
+  color: var(--primary);
+  border: 0;
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+  transition: all 0.2s ease;
+}
+.btn:hover { transform: translateY(-1px); box-shadow: var(--shadow-md); filter: brightness(0.97); }
+.btn:active { transform: translateY(0); }
+
+header .btn {
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  margin: 10px 8px 0 0;
+  backdrop-filter: blur(4px);
+}
+header .btn:hover { background: rgba(255, 255, 255, 0.25); }
+
+.btn.d { background: #ef4444 !important; color: #fff !important; }
+.btn.d:hover { background: #dc2626 !important; }
+
+.bar {
+  padding: 16px 20px 8px;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.chip {
+  border: 1px solid var(--border);
+  background: var(--card-bg);
+  color: var(--text-muted);
+  border-radius: 20px;
+  padding: 6px 14px;
+  font-weight: 500;
+  font-size: 13px;
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+  transition: all 0.2s;
+}
+.chip:hover { border-color: var(--primary); color: var(--primary); }
+.chip.on {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #fff;
+  box-shadow: 0 2px 4px rgba(79, 70, 229, 0.3);
+}
+
+.sep { width: 1px; height: 24px; background: var(--border); margin: 0 4px; }
+
+#q {
+  flex: 1;
+  min-width: 160px;
+  padding: 8px 14px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--card-bg);
+  font-size: 13px;
+  box-shadow: var(--shadow-sm);
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+#q:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15); }
+
+.sum {
+  margin: 8px 20px 14px;
+  padding: 12px 16px;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--accent);
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 13px;
+  box-shadow: var(--shadow-sm);
+  color: #334155;
+}
+
+.wrap {
+  overflow: auto;
+  margin: 0 20px 20px;
+  background: var(--card-bg);
+  max-height: 66vh;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: var(--shadow-md);
+}
+
+table {
+  border-collapse: separate;
+  border-spacing: 0;
+  width: 100%;
+  font-size: 13.5px;
+}
+
+th, td {
+  border-bottom: 1px solid var(--border);
+  border-right: 1px solid var(--border);
+  padding: 10px 14px;
+  white-space: nowrap;
+}
+
+th {
+  background: #334155;
+  color: #fff;
+  text-align: left;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  border-color: rgba(255, 255, 255, 0.1);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+th small { display: block; font-weight: 400; opacity: 0.75; font-size: 11px; margin-top: 2px; }
+
+tbody tr { transition: background 0.15s; }
+tbody tr:nth-child(even) td { background: #f8fafc; }
+tbody tr:hover td { background: #f1f5f9; }
+
+td.nm { cursor: pointer; }
+td.id {
+  position: sticky;
+  left: 0;
+  background: var(--card-bg);
+  cursor: pointer;
+  z-index: 1;
+  font-weight: 600;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.03);
+}
+tbody tr:nth-child(even) td.id { background: #f8fafc; }
+th.id { left: 0; z-index: 3; background: #334155; }
+
+.tag {
+  font-size: 11px;
+  border-radius: 6px;
+  padding: 2px 8px;
+  display: inline-block;
+  margin-top: 4px;
+  font-weight: 600;
+}
+.tag.F { background: #fce7f3; color: #db2777; }
+.tag.M { background: #e0e7ff; color: #4f46e5; }
+
+td.p { text-align: right; cursor: pointer; min-width: 120px; font-variant-numeric: tabular-nums; }
+tbody tr td.pd { background: #dcfce7 !important; color: #15803d; font-weight: 600; }
+tbody tr td.pt { background: #fef9c3 !important; color: #a16207; font-weight: 600; }
+
+td.r { text-align: right; font-weight: 600; font-variant-numeric: tabular-nums; }
+
+tfoot td {
+  background: #e2e8f0;
+  font-weight: 700;
+  text-align: right;
+  position: sticky;
+  bottom: 0;
+  z-index: 4;
+  color: #1e293b;
+  border-top: 2px solid var(--border);
+  font-variant-numeric: tabular-nums;
+}
+
+#md {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(4px);
+  align-items: center;
+  justify-content: center;
+  z-index: 99;
+  padding: 16px;
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+#bx {
+  background: var(--card-bg);
+  border-radius: 16px;
+  padding: 24px;
+  width: 100%;
+  max-width: 440px;
+  max-height: 90vh;
+  overflow: auto;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+  animation: scaleUp 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes scaleUp {
+  from { transform: scale(0.95); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+#bx h3 { font-size: 18px; font-weight: 700; color: var(--text); }
+#bx label { display: block; margin: 14px 0 6px; font-size: 13px; font-weight: 600; color: var(--text-muted); }
+#bx input, #bx select, #bx textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  background: #f8fafc;
+}
+#bx input:focus, #bx select:focus, #bx textarea:focus {
+  border-color: var(--primary);
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+}
+
+.row { display: flex; gap: 10px; margin-top: 18px; flex-wrap: wrap; }
+.row .btn { background: var(--primary); color: #fff; flex: 1; padding: 10px; }
+.row .btn:hover { background: var(--primary-dark); }
+.row .btn.g { background: #f1f5f9; color: var(--text); border: 1px solid var(--border); box-shadow: none; }
+.row .btn.g:hover { background: #e2e8f0; }
+
+.empty { padding: 40px 20px; text-align: center; color: var(--text-muted); font-size: 14px; }
+.empty b { color: var(--text); }
+
+@media print {
+  header, .bar, #md { display: none; }
+  .wrap { max-height: none; overflow: visible; box-shadow: none; border: none; }
+  body { background: #fff; }
+}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
@@ -51,17 +303,18 @@ tfoot td{background:#e3eaf5;font-weight:700;text-align:right;position:sticky;bot
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
-</head><body>
+</head>
+<body>
 <header>
-  <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+  <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
     <h1 id="ttl" onclick="checkAdminBefore(ren)"></h1>
-    <div id="auth-container" style="display: flex; align-items: center; gap: 8px; font-size: 13px;">
-      <span id="user-status" style="opacity: 0.9;">Checking access...</span>
-      <button class="btn" id="login-btn" onclick="openLoginModal()" style="display: none; padding: 5px 10px; font-size: 12px; background: #ffffff22; color: #fff; border: 1px solid #ffffff44;">Admin Login</button>
-      <button class="btn" id="logout-btn" onclick="logoutAdmin()" style="display: none; padding: 5px 10px; font-size: 12px; background: #b42318; color: #fff;">Logout</button>
+    <div id="auth-container" style="display: flex; align-items: center; gap: 10px; font-size: 13px;">
+      <span id="user-status" style="opacity: 0.9; font-weight: 500;">Checking access...</span>
+      <button class="btn" id="login-btn" onclick="openLoginModal()" style="display: none;">Admin Login</button>
+      <button class="btn d" id="logout-btn" onclick="logoutAdmin()" style="display: none;">Logout</button>
     </div>
   </div>
-  <div style="margin-top: 10px;">
+  <div style="margin-top: 12px;">
     <button class="btn" id="btn-add-mem" onclick="checkAdminBefore(addMems)" style="display:none;">+ Members</button>
     <button class="btn" id="btn-add-col" onclick="checkAdminBefore(colForm)" style="display:none;">+ Column</button>
     <button class="btn" onclick="menu()">More ▾</button>
@@ -70,7 +323,7 @@ tfoot td{background:#e3eaf5;font-weight:700;text-align:right;position:sticky;bot
 <div class="bar" id="f1"></div>
 <div class="sum" id="sum"></div>
 <div class="wrap" id="tb"></div>
-<div id="md"><div id="bx"><h3 id="mt" style="margin:0"></h3><div id="mb"></div>
+<div id="md"><div id="bx"><h3 id="mt" style="margin:0 0 12px 0"></h3><div id="mb"></div>
 <div class="row"><button class="btn" id="ms">Save</button><button class="btn g" onclick="closeM()">Cancel</button></div></div></div>
 <script>
 // Firebase configuration and live sync setup
@@ -186,11 +439,11 @@ function rows(){const q=F.q.toLowerCase();return S.mem.filter(m=>(F.g=='all'||m.
 function calc(m){let p=0,d=0;S.cols.forEach(c=>{const v=(S.pay[m.id]||{})[c.id];if(v!=null){p+=v;d+=Math.max(0,c.amt-v)}else d+=c.amt});return{p,d}}
 
 function render(kb){
- $('ttl').innerHTML=esc(S.title||'23/24 Batch Fund')+' <small>✎</small>';
+ $('ttl').innerHTML=esc(S.title||'23/24 Batch Fund')+' <small>✎ Edit Title</small>';
  const chips=(k,arr)=>arr.map(([v,l])=>`<button class="chip ${F[k]==v?'on':''}" onclick="F.${k}='${v}';render()">${l}</button>`).join('');
- if(!kb)$('f1').innerHTML=chips('g',[['all','All'],['F','Girls'],['M','Boys']])+'<span class="sep"></span>'+chips('s',[['all','All'],['ICT','ICT'],['BST','BST']])+`<input id="q" placeholder="Search name / reg no" value="${esc(F.q)}" oninput="F.q=this.value;render(1)">`;
+ if(!kb)$('f1').innerHTML=chips('g',[['all','All'],['F','Girls'],['M','Boys']])+'<span class="sep"></span>'+chips('s',[['all','All'],['ICT','ICT'],['BST','BST']])+`<input id="q" placeholder="Search name / reg no..." value="${esc(F.q)}" oninput="F.q=this.value;render(1)">`;
  const R=rows();
- if(!S.mem.length){$('tb').innerHTML='<div class="empty">No members yet.<br>Tap <b>+ Members</b> and paste names from Excel.</div>';$('sum').textContent='';return}
+ if(!S.mem.length){$('tb').innerHTML='<div class="empty">No members yet.<br>Tap <b>+ Members</b> above and paste records from Excel.</div>';$('sum').textContent='';return}
  let h='<table><thead><tr><th>#</th><th class="id">Reg No</th><th>Full Name</th>';
  S.cols.forEach(c=>h+=`<th onclick="colForm('${c.id}')" style="cursor:pointer">${esc(c.name)}<small>${fmt(c.amt)} ✎</small></th>`);
  h+='<th>Total Paid</th><th>Due</th></tr></thead><tbody>';
@@ -215,7 +468,7 @@ $('ms').onclick=()=>{if(onSave&&onSave()!==false)closeM()};
 function payForm(mid,cid){
   if (!isAdmin) return; // Does nothing if clicked by a non-admin
   const m=getM(mid),c=getC(cid),v=(S.pay[mid]||{})[cid];
-  modal(m.name+' — '+c.name,`<label>Amount paid (LKR)</label><input id="a" type="number" inputmode="decimal" value="${v!=null?v:c.amt}"><div class="row"><button class="btn g" onclick="clearPay('${mid}','${cid}')">Mark NOT paid</button></div>`,()=>{
+  modal(m.name+' — '+c.name,`<label>Amount paid (LKR)</label><input id="a" type="number" inputmode="decimal" value="${v!=null?v:c.amt}"><div class="row"><button class="btn g" onclick="clearPay('${mid}','${cid}')" style="flex:1">Mark NOT paid</button></div>`,()=>{
     const n=parseFloat($('a').value);if(isNaN(n)||n<0)return false;(S.pay[mid]=S.pay[mid]||{})[cid]=n;save();render()});setTimeout(()=>$('a').select(),50)
 }
 function clearPay(mid,cid){if(S.pay[mid])delete S.pay[mid][cid];save();render();closeM()}
@@ -244,12 +497,12 @@ function addMems(){modal('Add members',`<label>Paste from Excel (Registration Nu
    if(/^registration/i.test(reg))return;S.mem.push({id:uid(),reg,name,g:$('g').value,s:$('s').value=='auto'?strm(reg):$('s').value})});
   save();render()})}
 
-function menu(){modal('More',`<div class="row" style="flex-direction:column">
-<button class="btn" onclick="closeM();shareCSV()">Share report (CSV for Excel)</button>
-<button class="btn" onclick="closeM();shareUnpaid()">Share "not paid" list (text)</button>
-<button class="btn" onclick="closeM();sharePDF()">Share report as PDF</button>
-<button class="btn" onclick="closeM();backup()">Backup all data</button>
-<button class="btn" onclick="restoreForm()">Restore from backup</button></div>`)}
+function menu(){modal('More options',`<div class="row" style="flex-direction:column">
+<button class="btn" onclick="closeM();shareCSV()" style="width:100%;text-align:left;background:#f8fafc;color:var(--text);border:1px solid var(--border)">📥 Share report (CSV for Excel)</button>
+<button class="btn" onclick="closeM();shareUnpaid()" style="width:100%;text-align:left;background:#f8fafc;color:var(--text);border:1px solid var(--border)">📋 Share "not paid" list (text)</button>
+<button class="btn" onclick="closeM();sharePDF()" style="width:100%;text-align:left;background:#f8fafc;color:var(--text);border:1px solid var(--border)">📄 Share report as PDF</button>
+<button class="btn" onclick="closeM();backup()" style="width:100%;text-align:left;background:#f8fafc;color:var(--text);border:1px solid var(--border)">💾 Backup all data</button>
+<button class="btn" onclick="restoreForm()" style="width:100%;text-align:left;background:#f8fafc;color:var(--text);border:1px solid var(--border)">📂 Restore from backup</button></div>`)}
 
 async function makePDF(cols,ex){
  if(!(window.jspdf&&jspdf.jsPDF)){window.print();return}
@@ -260,11 +513,11 @@ async function makePDF(cols,ex){
  const T=cols.map(c=>R.reduce((a,m)=>a+((S.pay[m.id]||{})[c.id]||0),0));let tp=0,td=0;
  const body=R.map((m,i)=>{const t=cl(m);tp+=t.p;td+=t.d;return[i+1,m.reg,m.name,...raw[i].map(v=>v==null?'':fmt(v)),...(ex?[fmt(t.p),t.d?fmt(t.d):'-']:[])]});
  doc.autoTable({startY:70,head:[['#','Reg No','Full Name',...cols.map(c=>c.name+'\n'+fmt(c.amt)),...(ex?['Total Paid','Due']:[])]],body,foot:[['','','TOTAL ('+R.length+')',...T.map(fmt),...(ex?[fmt(tp),fmt(td)]:[])]],
-  styles:{fontSize:8,cellPadding:4,lineColor:[213,219,229],lineWidth:.5},headStyles:{fillColor:[31,58,95]},footStyles:{fillColor:[227,234,245],textColor:20},
-  didParseCell:d=>{if(d.section=='body'&&d.column.index>=3&&d.column.index<3+n){const v=raw[d.row.index][d.column.index-3],c=cols[d.column.index-3];d.cell.styles.halign='right';if(v!=null)d.cell.styles.fillColor=v>=c.amt?[227,244,233]:[255,241,204]}}});
+  styles:{fontSize:8,cellPadding:4,lineColor:[213,219,229],lineWidth:.5},headStyles:{fillColor:[49,46,129]},footStyles:{fillColor:[226,232,240],textColor:20},
+  didParseCell:d=>{if(d.section=='body'&&d.column.index>=3&&d.column.index<3+n){const v=raw[d.row.index][d.column.index-3],c=cols[d.column.index-3];d.cell.styles.halign='right';if(v!=null)d.cell.styles.fillColor=v>=c.amt?[220,252,231]:[254,249,195]}}});
  const name='fund-report-'+today()+'.pdf',P=window.Capacitor&&Capacitor.Plugins;
  try{if(P&&P.Filesystem&&P.Share){const r=await P.Filesystem.writeFile({path:name,data:doc.output('datauristring').split(',')[1],directory:'CACHE'});await P.Share.share({title:name,url:r.uri})}else doc.save(name)}catch(e){alert('PDF failed: '+e.message)}}
-function sharePDF(){const L='color:#1e293b;font-size:15px';modal('PDF columns','<label>Choose what to include</label>'+S.cols.map(c=>`<label style="${L}"><input type="checkbox" class="pc" value="${c.id}" checked style="width:auto;margin-right:8px">${esc(c.name)} (${fmt(c.amt)})</label>`).join('')+`<label style="${L}"><input type="checkbox" id="ex" checked style="width:auto;margin-right:8px">Total Paid &amp; Due</label>`,()=>{const ids=[...document.querySelectorAll('.pc:checked')].map(x=>x.value);if(!ids.length){alert('Select at least one column');return false}makePDF(S.cols.filter(c=>ids.includes(c.id)),$('ex').checked)});$('ms').textContent='Create PDF'}
+function sharePDF(){const L='color:#1e293b;font-size:14px;font-weight:500;display:block;margin:8px 0';modal('PDF columns','<label>Choose what to include</label>'+S.cols.map(c=>`<label style="${L}"><input type="checkbox" class="pc" value="${c.id}" checked style="width:auto;margin-right:8px">${esc(c.name)} (${fmt(c.amt)})</label>`).join('')+`<label style="${L}"><input type="checkbox" id="ex" checked style="width:auto;margin-right:8px">Total Paid &amp; Due</label>`,()=>{const ids=[...document.querySelectorAll('.pc:checked')].map(x=>x.value);if(!ids.length){alert('Select at least one column');return false}makePDF(S.cols.filter(c=>ids.includes(c.id)),$('ex').checked)});$('ms').textContent='Create PDF'}
 function ren(){modal('Rename fund',`<label>Title</label><input id="n" value="${esc(S.title||'')}">`,()=>{S.title=$('n').value.trim();save();render()})}
 async function shareFile(name,text,mime){const P=window.Capacitor&&Capacitor.Plugins;
  try{if(P&&P.Filesystem&&P.Share){const r=await P.Filesystem.writeFile({path:name,data:text,directory:'CACHE',encoding:'utf8'});await P.Share.share({title:name,url:r.uri})}
@@ -282,4 +535,6 @@ function backup(){shareFile('batchfund-backup-'+today()+'.json',JSON.stringify(S
 function restoreForm(){modal('Restore backup','<label>Choose the backup file</label><input id="fl" type="file"><label>…or paste the backup text</label><textarea id="t" rows="4"></textarea>',()=>{
   const go=txt=>{try{const d=JSON.parse(txt);if(!d.cols||!d.mem)throw 0;if(confirm('Replace ALL current data with this backup?')){S=d;dbRef.set(S).then(()=>render()).catch(e=>alert('Cloud save failed: '+e.message));}}catch(e){alert('Invalid backup')}};
   const f=$('fl').files[0];if(f){const r=new FileReader();r.onload=()=>go(r.result);r.readAsText(f)}else if($('t').value.trim())go($('t').value);else return false})}
-</script></body></html>
+</script>
+</body>
+</html>
