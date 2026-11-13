@@ -217,10 +217,13 @@ function payForm(mid,cid){const m=getM(mid),c=getC(cid),v=(S.pay[mid]||{})[cid];
   const n=parseFloat($('a').value);if(isNaN(n)||n<0)return false;(S.pay[mid]=S.pay[mid]||{})[cid]=n;save();render()});setTimeout(()=>$('a').select(),50)}
 function clearPay(mid,cid){if(S.pay[mid])delete S.pay[mid][cid];save();render();closeM()}
 
-function colForm(id){const c=id?getC(id):{name:'',amt:1000};
- modal(id?'Edit column':'New column',`<label>Column name (e.g. January, Trip)</label><input id="n" value="${esc(c.name)}"><label>Amount per person (LKR)</label><input id="a" type="number" value="${c.amt}">${id?`<div class="row"><button class="btn d" onclick="delCol('${id}')">Delete column</button></div>`:''}`,()=>{
-  const n=$('n').value.trim(),a=parseFloat($('a').value);if(!n||isNaN(a))return false;
-  if(id){c.name=n;c.amt=a}else S.cols.push({id:uid(),name:n,amt:a});save();render()})}
+function colForm(id){
+  if (!isAdmin) return; // Does nothing if clicked by a non-admin
+  const c = id?getC(id):{name:'',amt:1000};
+  modal(id?'Edit column':'New column',`<label>Column name (e.g. January, Trip)</label><input id="n" value="${esc(c.name)}"><label>Amount per person (LKR)</label><input id="a" type="number" value="${c.amt}">${id?`<div class="row"><button class="btn d" onclick="delCol('${id}')">Delete column</button></div>`:''}`,()=>{
+    const n=$('n').value.trim(),a=parseFloat($('a').value);if(!n||isNaN(a))return false;
+    if(id){c.name=n;c.amt=a}else S.cols.push({id:uid(),name:n,amt:a});save();render()})
+}
 function delCol(id){if(!confirm('Delete this column and its payments?'))return;S.cols=S.cols.filter(c=>c.id!=id);Object.values(S.pay).forEach(p=>delete p[id]);save();render();closeM()}
 
 function memForm(id){const m=getM(id);
