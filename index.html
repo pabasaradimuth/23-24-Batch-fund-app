@@ -45,7 +45,11 @@ tfoot td{background:#e3eaf5;font-weight:700;text-align:right;position:sticky;bot
 .empty{padding:30px;text-align:center;color:#64748b}
 @media print{header,.bar,#md{display:none}.wrap{max-height:none;overflow:visible}}
 </style>
-<script src="jspdf.umd.min.js"></script><script src="jspdf.plugin.autotable.min.js"></script></head><body>
+<script src="jspdf.umd.min.js"></script><script src="jspdf.plugin.autotable.min.js"></script>
+<!-- Firebase SDK scripts -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+</head><body>
 <header><h1 id="ttl" onclick="ren()"></h1>
 <div><button class="btn" onclick="addMems()">+ Members</button>
 <button class="btn" onclick="colForm()">+ Column</button>
@@ -56,11 +60,44 @@ tfoot td{background:#e3eaf5;font-weight:700;text-align:right;position:sticky;bot
 <div id="md"><div id="bx"><h3 id="mt" style="margin:0"></h3><div id="mb"></div>
 <div class="row"><button class="btn" id="ms">Save</button><button class="btn g" onclick="closeM()">Cancel</button></div></div></div>
 <script>
-const K='batchfund_v1';
-let S=(()=>{try{const d=JSON.parse(localStorage.getItem(K));if(d&&d.cols)return d}catch(e){}return{cols:[{id:'c1',name:'Month 1',amt:1000}],mem:[],pay:{}}})();
+// Firebase configuration and live sync setup
+const firebaseConfig = {
+  apiKey: "AIzaSyAGgU8TM463tSq1QogY4oCJKQg-6DPxQl4",
+  authDomain: "batchfund-f2b19.firebaseapp.com",
+  databaseURL: "https://batchfund-f2b19-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "batchfund-f2b19",
+  storageBucket: "batchfund-f2b19.firebasestorage.app",
+  messagingSenderId: "464580607684",
+  appId: "1:464580607684:web:f73e71b50c3519bd259391",
+  measurementId: "G-QT5XEEVY79"
+};
+
+firebase.initializeApp(firebaseConfig);
+const dbRef = firebase.database().ref('batchfund_data');
+
+let S = {cols:[{id:'c1',name:'Month 1',amt:1000}],mem:[],pay:{}};
 let F={g:'all',s:'all',q:''};
 const $=i=>document.getElementById(i);
-const save=()=>{try{localStorage.setItem(K,JSON.stringify(S))}catch(e){alert('Could not save!')}};
+
+const save = () => {
+  dbRef.set(S).catch(e => alert('Could not save to cloud!'));
+};
+
+dbRef.on('value', (snapshot) => {
+  const data = snapshot.val();
+  if (data) {
+    S = {
+      title: data.title || '23/24 Batch Fund',
+      cols: data.cols || [],
+      mem: data.mem || [],
+      pay: data.pay || {}
+    };
+    render();
+  } else {
+    save();
+  }
+});
+
 const fmt=n=>'LKR '+Number(n).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
 const uid=()=>Math.random().toString(36).slice(2,9);
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -158,5 +195,4 @@ function backup(){shareFile('batchfund-backup-'+today()+'.json',JSON.stringify(S
 function restoreForm(){modal('Restore backup','<label>Choose the backup file</label><input id="fl" type="file"><label>…or paste the backup text</label><textarea id="t" rows="4"></textarea>',()=>{
   const go=txt=>{try{const d=JSON.parse(txt);if(!d.cols||!d.mem)throw 0;if(confirm('Replace ALL current data with this backup?')){S=d;save();render()}}catch(e){alert('Invalid backup')}};
   const f=$('fl').files[0];if(f){const r=new FileReader();r.onload=()=>go(r.result);r.readAsText(f)}else if($('t').value.trim())go($('t').value);else return false})}
-render();
 </script></body></html>
