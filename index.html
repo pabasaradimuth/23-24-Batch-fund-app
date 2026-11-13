@@ -212,9 +212,12 @@ function modal(t,html,fn){$('mt').textContent=t;$('mb').innerHTML=html;$('md').s
 function closeM(){$('md').style.display='none'}
 $('ms').onclick=()=>{if(onSave&&onSave()!==false)closeM()};
 
-function payForm(mid,cid){const m=getM(mid),c=getC(cid),v=(S.pay[mid]||{})[cid];
- modal(m.name+' — '+c.name,`<label>Amount paid (LKR)</label><input id="a" type="number" inputmode="decimal" value="${v!=null?v:c.amt}"><div class="row"><button class="btn g" onclick="clearPay('${mid}','${cid}')">Mark NOT paid</button></div>`,()=>{
-  const n=parseFloat($('a').value);if(isNaN(n)||n<0)return false;(S.pay[mid]=S.pay[mid]||{})[cid]=n;save();render()});setTimeout(()=>$('a').select(),50)}
+function payForm(mid,cid){
+  if (!isAdmin) return; // Does nothing if clicked by a non-admin
+  const m=getM(mid),c=getC(cid),v=(S.pay[mid]||{})[cid];
+  modal(m.name+' — '+c.name,`<label>Amount paid (LKR)</label><input id="a" type="number" inputmode="decimal" value="${v!=null?v:c.amt}"><div class="row"><button class="btn g" onclick="clearPay('${mid}','${cid}')">Mark NOT paid</button></div>`,()=>{
+    const n=parseFloat($('a').value);if(isNaN(n)||n<0)return false;(S.pay[mid]=S.pay[mid]||{})[cid]=n;save();render()});setTimeout(()=>$('a').select(),50)
+}
 function clearPay(mid,cid){if(S.pay[mid])delete S.pay[mid][cid];save();render();closeM()}
 
 function colForm(id){
