@@ -52,10 +52,21 @@ tfoot td{background:#e3eaf5;font-weight:700;text-align:right;position:sticky;bot
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
 </head><body>
-<header><h1 id="ttl" onclick="ren()"></h1>
-<div><button class="btn" onclick="addMems()">+ Members</button>
-<button class="btn" onclick="colForm()">+ Column</button>
-<button class="btn" onclick="menu()">More ▾</button></div></header>
+<header>
+  <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+    <h1 id="ttl" onclick="checkAdminBefore(ren)"></h1>
+    <div id="auth-container" style="display: flex; align-items: center; gap: 8px; font-size: 13px;">
+      <span id="user-status" style="opacity: 0.9;">Checking access...</span>
+      <button class="btn" id="login-btn" onclick="loginAdmin()" style="display: none; padding: 5px 10px; font-size: 12px; background: #ffffff22; color: #fff; border: 1px solid #ffffff44;">Admin Login</button>
+      <button class="btn" id="logout-btn" onclick="logoutAdmin()" style="display: none; padding: 5px 10px; font-size: 12px; background: #b42318; color: #fff;">Logout</button>
+    </div>
+  </div>
+  <div style="margin-top: 10px;">
+    <button class="btn" id="btn-add-mem" onclick="checkAdminBefore(addMems)" style="display:none;">+ Members</button>
+    <button class="btn" id="btn-add-col" onclick="checkAdminBefore(colForm)" style="display:none;">+ Column</button>
+    <button class="btn" onclick="menu()">More ▾</button>
+  </div>
+</header>
 <div class="bar" id="f1"></div>
 <div class="sum" id="sum"></div>
 <div class="wrap" id="tb"></div>
