@@ -226,9 +226,12 @@ function colForm(id){
 }
 function delCol(id){if(!confirm('Delete this column and its payments?'))return;S.cols=S.cols.filter(c=>c.id!=id);Object.values(S.pay).forEach(p=>delete p[id]);save();render();closeM()}
 
-function memForm(id){const m=getM(id);
- modal('Edit member',`<label>Registration Number</label><input id="r" value="${esc(m.reg)}"><label>Full Name</label><input id="n" value="${esc(m.name)}"><label>Gender</label><select id="g"><option value="F" ${m.g=='F'?'selected':''}>Girl</option><option value="M" ${m.g=='M'?'selected':''}>Boy</option></select><label>Stream</label><select id="s">${['ICT','BST','Other'].map(x=>`<option ${m.s==x?'selected':''}>${x}</option>`).join('')}</select><div class="row"><button class="btn d" onclick="delMem('${id}')">Delete member</button></div>`,()=>{
-  m.reg=$('r').value.trim();m.name=$('n').value.trim();m.g=$('g').value;m.s=$('s').value;save();render()})}
+function memForm(id){
+  if (!isAdmin) return; // Does nothing if clicked by a non-admin
+  const m=getM(id);
+  modal('Edit member',`<label>Registration Number</label><input id="r" value="${esc(m.reg)}"><label>Full Name</label><input id="n" value="${esc(m.name)}"><label>Gender</label><select id="g"><option value="F" ${m.g=='F'?'selected':''}>Girl</option><option value="M" ${m.g=='M'?'selected':''}>Boy</option></select><label>Stream</label><select id="s">${['ICT','BST','Other'].map(x=>`<option ${m.s==x?'selected':''}>${x}</option>`).join('')}</select><div class="row"><button class="btn d" onclick="delMem('${id}')">Delete member</button></div>`,()=>{
+    m.reg=$('r').value.trim();m.name=$('n').value.trim();m.g=$('g').value;m.s=$('s').value;save();render()})
+}
 function delMem(id){if(!confirm('Delete this member and all their payments?'))return;S.mem=S.mem.filter(m=>m.id!=id);delete S.pay[id];save();render();closeM()}
 
 function addMems(){modal('Add members',`<label>Paste from Excel (Registration Number, then Name — one person per line)</label><textarea id="t" rows="8"></textarea><label>These people are</label><select id="g"><option value="F">Girls</option><option value="M">Boys</option></select><label>Stream</label><select id="s"><option>ICT</option><option>BST</option><option value="auto">Detect from registration number</option></select>`,()=>{
