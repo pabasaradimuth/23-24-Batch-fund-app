@@ -382,30 +382,47 @@ function logoutAdmin() {
 }
 
 auth.onAuthStateChanged((user) => {
-  isAdmin = user && adminUids.includes(user.uid);
+  if (user) {
+    // Check live from Firebase Database if this user is an admin
+    firebase.database().ref('admins/' + user.uid).once('value')
+      .then((snapshot) => {
+        isAdmin = snapshot.exists();
 
-  ['btn-add-mem', 'btn-add-col'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.style.display = isAdmin ? 'inline-block' : 'none';
-  });
+        ['btn-add-mem', 'btn-add-col'].forEach(id => {
+          const el = document.getElementById(id);
+          if (el) el.style.display = isAdmin ? 'inline-block' : 'none';
+        });
 
-  if (isAdmin) {
-    $('user-status').innerText = `Admin: ${user.displayName || user.email}`;
-    $('login-btn').style.display = 'none';
-    $('logout-btn').style.display = 'inline-block';
+        if (isAdmin) {
+          $('user-status').innerText = `Admin: ${user.displayName || user.email}`;
+          $('login-btn').style.display = 'none';
+          $('logout-btn').style.display = 'inline-block';
+        } else {
+          alert("Access Denied: This account is not authorized as an admin.");
+          auth.signOut();
+          $('user-status').innerText = "View-Only Mode";
+          $('login-btn').style.display = 'inline-block';
+          $('logout-btn').style.display = 'none';
+        }
+        render();
+      })
+      .catch(() => {
+        isAdmin = false;
+        $('user-status').innerText = "View-Only Mode";
+        render();
+      });
   } else {
-    if (user) {
-      alert("Access Denied: This account is not on the authorized admin list.");
-      auth.signOut();
-    }
+    isAdmin = false;
+    ['btn-add-mem', 'btn-add-col'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.style.display = 'none';
+    });
     $('user-status').innerText = "View-Only Mode";
     $('login-btn').style.display = 'inline-block';
     $('logout-btn').style.display = 'none';
+    render();
   }
-  render();
 });
-// --- END OF AUTH LOGIC ---
-
 let S = {cols:[{id:'c1',name:'Month 1',amt:1000}],mem:[],pay:{}};
 let F={g:'all',s:'all',q:''};
 const $=i=>document.getElementById(i);
