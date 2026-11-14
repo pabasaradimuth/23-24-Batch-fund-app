@@ -466,43 +466,61 @@ function closeM(){$('md').style.display='none'}
 $('ms').onclick=()=>{if(onSave&&onSave()!==false)closeM()};
 
 function payForm(mid,cid){
-  if (!isAdmin) return; // Does nothing if clicked by a non-admin
+  if (!isAdmin) return; 
   const m=getM(mid),c=getC(cid),v=(S.pay[mid]||{})[cid];
   modal(m.name+' — '+c.name,`<label>Amount paid (LKR)</label><input id="a" type="number" inputmode="decimal" value="${v!=null?v:c.amt}"><div class="row"><button class="btn g" onclick="clearPay('${mid}','${cid}')" style="flex:1">Mark NOT paid</button></div>`,()=>{
     const n=parseFloat($('a').value);if(isNaN(n)||n<0)return false;(S.pay[mid]=S.pay[mid]||{})[cid]=n;save();render()});setTimeout(()=>$('a').select(),50)
 }
 function clearPay(mid,cid){if(S.pay[mid])delete S.pay[mid][cid];save();render();closeM()}
 
+// FIX APPLIED: Validation checks to block negative or zero amounts
 function colForm(id){
-  if (!isAdmin) return; // Does nothing if clicked by a non-admin
+  if (!isAdmin) return; 
   const c = id?getC(id):{name:'',amt:1000};
   modal(id?'Edit column':'New column',`<label>Column name (e.g. January, Trip)</label><input id="n" value="${esc(c.name)}"><label>Amount per person (LKR)</label><input id="a" type="number" value="${c.amt}">${id?`<div class="row"><button class="btn d" onclick="delCol('${id}')">Delete column</button></div>`:''}`,()=>{
-    const n=$('n').value.trim(),a=parseFloat($('a').value);if(!n||isNaN(a))return false;
+    const n=$('n').value.trim(),a=parseFloat($('a').value);
+    if(!n||isNaN(a)||a<=0){ alert("Please enter a valid column name and an amount greater than 0."); return false; }
     if(id){c.name=n;c.amt=a}else S.cols.push({id:uid(),name:n,amt:a});save();render()})
 }
 function delCol(id){if(!confirm('Delete this column and its payments?'))return;S.cols=S.cols.filter(c=>c.id!=id);Object.values(S.pay).forEach(p=>delete p[id]);save();render();closeM()}
 
+// FIX APPLIED: Validation checks to block blank fields
 function memForm(id){
-  if (!isAdmin) return; // Does nothing if clicked by a non-admin
+  if (!isAdmin) return; 
   const m=getM(id);
   modal('Edit member',`<label>Registration Number</label><input id="r" value="${esc(m.reg)}"><label>Full Name</label><input id="n" value="${esc(m.name)}"><label>Gender</label><select id="g"><option value="F" ${m.g=='F'?'selected':''}>Girl</option><option value="M" ${m.g=='M'?'selected':''}>Boy</option></select><label>Stream</label><select id="s">${['ICT','BST','Other'].map(x=>`<option ${m.s==x?'selected':''}>${x}</option>`).join('')}</select><div class="row"><button class="btn d" onclick="delMem('${id}')">Delete member</button></div>`,()=>{
-    m.reg=$('r').value.trim();m.name=$('n').value.trim();m.g=$('g').value;m.s=$('s').value;save();render()})
+    const r=$('r').value.trim(), n=$('n').value.trim();
+    if(!r || !n){ alert("Registration number and name cannot be blank."); return false; }
+    m.reg=r; m.name=n; m.g=$('g').value; m.s=$('s').value; save(); render()})
 }
 function delMem(id){if(!confirm('Delete this member and all their payments?'))return;S.mem=S.mem.filter(m=>m.id!=id);delete S.pay[id];save();render();closeM()}
 
-function addMems(){modal('Add members',`<label>Paste from Excel (Registration Number, then Name — one person per line)</label><textarea id="t" rows="8"></textarea><label>These people are</label><select id="g"><option value="F">Girls</option><option value="M">Boys</option></select><label>Stream</label><select id="s"><option>ICT</option><option>BST</option><option value="auto">Detect from registration number</option></select>`,()=>{
+// FIX APPLIED: Validation checks and duplicate checks on bulk import
+function addMems(){
+  if (!isAdmin) return;
+  modal('Add members',`<label>Paste from Excel (Registration Number, then Name — one person per line)</label><textarea id="t" rows="8"></textarea><label>These people are</label><select id="g"><option value="F">Girls</option><option value="M">Boys</option></select><label>Stream</label><select id="s"><option>ICT</option><option>BST</option><option value="auto">Detect from registration number</option></select>`,()=>{
   const L=$('t').value.split('\n').map(x=>x.trim()).filter(Boolean);if(!L.length)return false;
+  let addedCount = 0;
   L.forEach(l=>{let p=l.split('\t');if(p.length<2)p=l.split(/\s{2,}|,/);let reg='',name=l;
    if(p.length>=2){reg=p[0].trim();name=p.slice(1).join(' ').trim()}
-   if(/^registration/i.test(reg))return;S.mem.push({id:uid(),reg,name,g:$('g').value,s:$('s').value=='auto'?strm(reg):$('s').value})});
-  save();render()})}
+   if(/^registration/i.test(reg) || !reg || !name)return;
+   // Check for duplicate registration numbers
+   if(S.mem.some(m => m.reg.toLowerCase() === reg.toLowerCase())) return;
+   S.mem.push({id:uid(),reg,name,g:$('g').value,s:$('s').value=='auto'?strm(reg):$('s').value});
+   addedCount++;
+  });
+  if(addedCount === 0){ alert("No valid or non-duplicate members were added."); return false; }
+  save();render()})
+}
 
-function menu(){modal('More options',`<div class="row" style="flex-direction:column">
+// FIX APPLIED: Admin guard added to menu options & deep schema validation for restore
+function menu(){
+  modal('More options',`<div class="row" style="flex-direction:column">
 <button class="btn" onclick="closeM();shareCSV()" style="width:100%;text-align:left;background:#f8fafc;color:var(--text);border:1px solid var(--border)">📥 Share report (CSV for Excel)</button>
 <button class="btn" onclick="closeM();shareUnpaid()" style="width:100%;text-align:left;background:#f8fafc;color:var(--text);border:1px solid var(--border)">📋 Share "not paid" list (text)</button>
 <button class="btn" onclick="closeM();sharePDF()" style="width:100%;text-align:left;background:#f8fafc;color:var(--text);border:1px solid var(--border)">📄 Share report as PDF</button>
 <button class="btn" onclick="closeM();backup()" style="width:100%;text-align:left;background:#f8fafc;color:var(--text);border:1px solid var(--border)">💾 Backup all data</button>
-<button class="btn" onclick="restoreForm()" style="width:100%;text-align:left;background:#f8fafc;color:var(--text);border:1px solid var(--border)">📂 Restore from backup</button></div>`)}
+<button class="btn" onclick="closeM();checkAdminBefore(restoreForm)" style="width:100%;text-align:left;background:#f8fafc;color:var(--text);border:1px solid var(--border)">📂 Restore from backup</button></div>`)}
 
 async function makePDF(cols,ex){
  if(!(window.jspdf&&jspdf.jsPDF)){window.print();return}
@@ -532,8 +550,28 @@ function shareCSV(){const q=v=>'"'+String(v).replace(/"/g,'""')+'"';
 function shareUnpaid(){const R=rows().filter(m=>calc(m).d>0);
  shareText(`NOT PAID LIST (${today()})\n`+R.map((m,i)=>`${i+1}. ${m.name} (${m.reg}) - due ${fmt(calc(m).d)}`).join('\n')+`\n\nTotal due: ${fmt(R.reduce((a,m)=>a+calc(m).d,0))}`)}
 function backup(){shareFile('batchfund-backup-'+today()+'.json',JSON.stringify(S),'application/json')}
-function restoreForm(){modal('Restore backup','<label>Choose the backup file</label><input id="fl" type="file"><label>…or paste the backup text</label><textarea id="t" rows="4"></textarea>',()=>{
-  const go=txt=>{try{const d=JSON.parse(txt);if(!d.cols||!d.mem)throw 0;if(confirm('Replace ALL current data with this backup?')){S=d;dbRef.set(S).then(()=>render()).catch(e=>alert('Cloud save failed: '+e.message));}}catch(e){alert('Invalid backup')}};
+
+// FIX APPLIED: Deep schema validation before parsing backup JSON
+function restoreForm(){
+  if (!isAdmin) return;
+  modal('Restore backup','<label>Choose the backup file</label><input id="fl" type="file"><label>…or paste the backup text</label><textarea id="t" rows="4"></textarea>',()=>{
+  const go=txt=>{
+    try{
+      const d=JSON.parse(txt);
+      if(!d || typeof d !== 'object' || !Array.isArray(d.cols) || !Array.isArray(d.mem) || typeof d.pay !== 'object'){
+        throw new Error("Invalid schema structure.");
+      }
+      if(confirm('Replace ALL current data with this backup?')){
+        S = {
+          title: d.title || 'Batch Fund',
+          cols: d.cols,
+          mem: d.mem,
+          pay: d.pay || {}
+        };
+        dbRef.set(S).then(()=>render()).catch(e=>alert('Cloud save failed: '+e.message));
+      }
+    }catch(e){alert('Invalid backup format or malformed JSON.')}
+  };
   const f=$('fl').files[0];if(f){const r=new FileReader();r.onload=()=>go(r.result);r.readAsText(f)}else if($('t').value.trim())go($('t').value);else return false})}
 </script>
 </body>
