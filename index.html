@@ -345,11 +345,6 @@ const dbRef = firebase.database().ref('batchfund_data');
 const auth = firebase.auth();
 auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(console.error);
 
-// Paste your Firebase User UID inside these quotes:
-const adminUids = [
-  "fLeo9uuxd4ZdhbEQoxge9QCS0wR2"
-];
-
 let isAdmin = false;
 
 function checkAdminBefore(actionFn, arg1, arg2) {
